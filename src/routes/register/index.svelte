@@ -3,17 +3,6 @@
 	// import { Preload } from "@sapper/common";
 
 	export const preload = async function( page, session) {
-		const { user} = session;
-		if(user)
-		{
-			return this.redirect(301, 'dashboard');
-		}
-		// console.log(val);
-		// const res= await this.fetch('login.json',{method:'get'});
-		// const res = await this.fetch('login.json',{method:'post',headers:{'Content-type':'application/json'},body:JSON.stringify({username:"w",password:"asd"})});
-		// console.log(res);
-		//console.log(res);
-		// return { user };
 	}
 
 
@@ -21,26 +10,45 @@
 </script>
 
 <script>
+	import {ApiUrl} from '../_utils/static_store.js';
+	import { get } from 'svelte/store';
+
+	var registerPath=get(ApiUrl);
+
 	export let email,password;
-	export let user;
-	import successkid from 'images/successkid.jpg';
-import { bind } from 'svelte/internal';
+	import {onMount} from 'svelte';
+
+	onMount(async ()=>{
+		var token = localStorage.getItem("token");
+		if(token)
+		{
+			location.href="/dashboard";
+		}
+	});
+
 
 
 export async function handleSubmit(){
 	if(email && password)
 	{
 		// const res= await fetch('login.json',{method:'get'});
-		const res = await fetch('register.json',{mode:'cors',method:'post',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+		const res = await fetch(registerPath+'/auth/register',{mode:'cors',method:'post',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
 		if(res.status==200)
 		{
-			location.href="/dashboard";
+			console.log(res.headers);
+			var token=res.headers.get('xtoken');
+			localStorage.setItem("token",token);
+			
+			var text = await res.text();
+			text = JSON.parse(text);
+			// user = text.user;
+			location.href = "/dashboard";
 		}
-		else
-		{
-			alert("registration failed");
+		else{
+			alert("Register Failed");
 			console.log(res.text());
 		}
+		
 	}
 }
 </script>

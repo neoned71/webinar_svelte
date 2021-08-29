@@ -1,17 +1,36 @@
 <script context="module">
-	
+	// var user={};
+	 import {ApiUrl} from '../_utils/static_store.js';
+	 import {Token} from '../_utils/dynamic_store.js';
+	 console.log("hello");
+	 import { get } from 'svelte/store';
+
+	 var loginPath=get(ApiUrl);
+	 
+	 
 	// import { Preload } from "@sapper/common";
 
 	export const preload = async function( page, session) {
-		var { user } = session;
-		// user=JSON.parse(user);
-		console.log(user);
-		if(user)
-		{
-			this.redirect(301, 'dashboard');
+		const res = await this.fetch(loginPath+'/auth/whoami',{mode:'cors',method:'get'});
+		if(res.status==200){
+			try{
+				var data = await res.json();
+				console.log(data);
+				if(data.status == "success")
+				{
+					this.redirect(301,"/dashboard");
+					
+				}
+				
+			}
+			catch(e){
+				// this.error(e,data.message);
+				console.log(e);
+			}
+			
+			// let data = JSON.parse(text);
+			
 		}
-		
-		return { user,session };
 	}
 
 
@@ -20,21 +39,33 @@
 
 <script>
 	export let email,password;
-	export let user,session;
-	import successkid from 'images/successkid.jpg';
-import { bind } from 'svelte/internal';
+	import {onMount} from 'svelte';
+
+	onMount(async ()=>{
+		var token = localStorage.getItem("token");
+		if(token && token!= 'null')
+		{
+			location.href="/dashboard";
+		}
+	});
+
 
 
 export async function handleSubmit(){
 	if(email && password)
 	{
 		// const res= await fetch('login.json',{method:'get'});
-		const res = await fetch('login.json',{mode:'cors',method:'post',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+		const res = await fetch(loginPath+'/auth/login',{mode:'cors',method:'post',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
 		if(res.status==200)
 		{
+			console.log(res.headers);
+			var token=res.headers.get('xtoken');
+			alert(token);
+			localStorage.setItem("token",token);
+			
 			var text = await res.text();
-			text = JSON.parse(text);
-			session.user = text.user;
+			text = await JSON.parse(text);
+			// user = text.user;
 			location.href = "/dashboard";
 		}
 		else{
@@ -82,13 +113,11 @@ export async function handleSubmit(){
 </style>
 
 <svelte:head>
-	<title>Sapper project template</title>
+	<title>Seminar</title>
 </svelte:head>
 
-<h1>CertPad</h1>
-<h2>Create and Manage Certificates for your institution...</h2>
-
-
+<h1>Seminar</h1>
+<h2>Login</h2>
 
 <form on:submit|preventDefault={handleSubmit} >
 

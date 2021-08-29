@@ -1,35 +1,9 @@
 <script context="module">
-	var certificates ={};
-	// import { Preload } from "@sapper/common";
+	 console.log("hello");
+	 
 
-	export const preload = async function( page, session) {
-		var { user } = session;
-		// user=JSON.parse(user);
-		if(!user)
-		{
-			return this.redirect(301, 'login');
-		}
-		console.log(user);
-
-		const res = await this.fetch('dashboard.json',{mode:'cors',method:'get'});
-		if(res.status==200){
-			var data = await res.json();
-			console.log(data);
-			if(data.status == "success")
-			{
-				certificates = data.data;
-				console.log(certificates);
-				
-			}
-			else{
-				this.error(data.status,data.message);
-			}
-			// let data = JSON.parse(text);
-			
-		}
-		console.log(1);
-		user=JSON.parse(user);
-		return { user, certificates };
+	var user =null;
+	export const preload = async function( page, session) {	
 	}
 
 
@@ -39,10 +13,101 @@
 <script>
 	import ImageUpload from '../_utils/imageUpload.svelte';
 	import DataUpload from '../_utils/dataUpload.svelte';
-	export let email,password;
-	export let user;
-	export let certificates;
-	import successkid from 'images/successkid.jpg';
+	import {onMount} from 'svelte';
+	import {Token} from '../_utils/dynamic_store.js';
+	import {ApiUrl} from '../_utils/static_store.js';
+	import { get } from 'svelte/store';
+// import { roomId } from '../room/[slug].svelte';
+	// export var roomId;
+	 var loginPath=get(ApiUrl);
+	
+	
+	export var user;
+	onMount(async ()=>{
+		
+		console.log("mounted");
+		// localStorage.setItem("token","some value");
+		
+		var token = localStorage.getItem("token");
+		if(!token)
+		{
+			console.log("yes");
+			// location.href="/login";
+		}
+		Token.set(token);
+
+
+		// console.log(loginPath+'/auth/whoami');
+		const res = await fetch(loginPath+'/auth/whoami',{mode:'cors',method:'get',headers:{'Authorization':'Bearer '+token}});
+		if(res.status==200){
+			try{
+					let data= await res.text();
+					// console.log(data);
+					data= await JSON.parse(data);
+					user = data.user;
+					// alert(JSON.stringify(user));
+					// console.log(user);
+					
+			}
+			catch(e){
+				console.log("caught");
+				//this.redirect(300,"/login");
+				// this.error(e,data.message);
+				console.log(e);
+			}
+			finally{
+				// return { user };
+			}
+			
+			// let data = JSON.parse(text);
+			
+		}
+		else{
+					console.log(await res.text());
+					user.email="no logged";
+					// return {user};
+					// this.redirect(300,"/login");
+				}
+		// 
+	})
+	
+
+	async function createRoom(){
+
+		var token = localStorage.getItem("token");
+		// alert(token);
+		const res = await fetch(loginPath+'/rooms/create/',{mode:'cors',method:'get',headers:{'Authorization':'Bearer '+token}});
+		if(res.status==200){
+			try{
+					let data= await res.text();
+					console.log(data);
+					data= await JSON.parse(data);
+					var roomId = data.room_id;
+					alert(roomId);
+					location.href="./room/"+roomId;
+					// console.log(user);
+					
+			}
+			catch(e){
+				console.log("caught");
+				//this.redirect(300,"/login");
+				// this.error(e,data.message);
+				console.log(e);
+			}
+			finally{
+				// return { user };
+			}
+			
+			// let data = JSON.parse(text);
+			
+		}
+		else{
+					console.log(await res.text());
+					// user.email="failed";
+					// return {user};
+					// this.redirect(300,"/login");
+				}
+	} 
 
 </script>
 
@@ -87,15 +152,17 @@
 	<title>Sapper project template</title>
 </svelte:head>
 
-<h1>Great!</h1>
-<p>Go ahead and create a <a href="/create_certificate">new certificate!</a></p>
-Make sure that these images are uploaded...
-<hr>
 
 
 	<div style="display:flex;width:100%">
-		<DataUpload class="flex" organization={user.organization} post={user.post} name={user.name} />
+		{#if user}
+		USername:{user.email}
+
+		<button class="w3-button w3-round w3-border" on:click={createRoom}>Create room</button>
+			
+		{/if}
+		<!-- <DataUpload class="flex" organization={user.organization} post={user.post} name={user.username} />
 		<ImageUpload class="flex" avatar={user.logo} name={"logo"}/>
-		<ImageUpload class="flex" avatar={user.signature} name={"signature"}/>
+		<ImageUpload class="flex" avatar={user.signature} name={"signature"}/> -->
 	</div>
 <hr>

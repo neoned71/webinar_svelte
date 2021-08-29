@@ -2,81 +2,83 @@
   "bundler": "rollup",
   "shimport": "2.0.4",
   "assets": {
-    "main": "client.0ae6daf2.js"
+    "main": "client.49085424.js"
   },
   "css": {
     "main": [
-      "client-9891a1dc.css"
+      "client-516425e7.css"
     ]
   },
   "dependencies": {
     "index.svelte": [
-      "index.e0391497.js",
-      "successkid.d53948a6.js",
+      "index.104bf4da.js",
       "inject_styles.5607aec6.js",
-      "index-39716d32.css"
+      "index-28e6047f.css"
     ],
     "create_certificate/index.svelte": [
-      "index.093d0f5d.js",
+      "index.183ec863.js",
       "successkid.d53948a6.js",
       "inject_styles.5607aec6.js",
       "index-c8c81f53.css"
     ],
     "create_template/index.svelte": [
-      "index.e2622a62.js",
+      "index.f5098b32.js",
       "successkid.d53948a6.js",
       "inject_styles.5607aec6.js",
       "index-4bf714b4.css"
     ],
     "certificates/index.svelte": [
-      "index.897f08f8.js",
+      "index.f33cf5ca.js",
       "inject_styles.5607aec6.js",
       "index-6192a94e.css"
     ],
     "certificate/[slug].svelte": [
-      "[slug].4ac1fdfd.js",
+      "[slug].fe1d5bc8.js",
       "inject_styles.5607aec6.js",
       "[slug]-dd13d435.css"
     ],
-    "_utils/imageUpload.svelte": [
-      "index.c152b034.js",
-      "successkid.d53948a6.js",
-      "inject_styles.5607aec6.js",
-      "index-bd17026b.css"
-    ],
-    "_utils/dataUpload.svelte": [
-      "index.c152b034.js",
-      "successkid.d53948a6.js",
-      "inject_styles.5607aec6.js",
-      "index-bd17026b.css"
-    ],
     "dashboard/index.svelte": [
-      "index.c152b034.js",
-      "successkid.d53948a6.js",
+      "index.1e368ebc.js",
+      "dataUpload.ad5ea7d9.js",
       "inject_styles.5607aec6.js",
-      "index-bd17026b.css"
+      "dataUpload-f35e9418.css",
+      "index-1a3e3ae6.css"
     ],
     "templates/index.svelte": [
-      "index.69cbb589.js",
+      "index.4cad4898.js",
       "successkid.d53948a6.js",
       "inject_styles.5607aec6.js",
       "index-7fb19cac.css"
     ],
     "register/index.svelte": [
-      "index.b8a6e6d3.js",
-      "successkid.d53948a6.js",
+      "index.92e3544e.js",
       "inject_styles.5607aec6.js",
       "index-c8c81f53.css"
     ],
     "about.svelte": [
-      "about.e1be35a4.js",
+      "about.ad51b1e1.js",
       "inject_styles.5607aec6.js"
     ],
     "login/index.svelte": [
-      "index.43e4ddf9.js",
-      "successkid.d53948a6.js",
+      "index.e40d0db1.js",
       "inject_styles.5607aec6.js",
       "index-fcc7084c.css"
+    ],
+    "room/[slug]_back.svelte": [
+      "[slug]_back.df61e9da.js",
+      "dataUpload.ad5ea7d9.js",
+      "_face_screen.c67f68a9.js",
+      "inject_styles.5607aec6.js",
+      "dataUpload-f35e9418.css",
+      "_face_screen-4741ab7f.css",
+      "[slug]_back-03563e5c.css"
+    ],
+    "room/[slug].svelte": [
+      "[slug].e99938d8.js",
+      "_face_screen.c67f68a9.js",
+      "inject_styles.5607aec6.js",
+      "_face_screen-4741ab7f.css",
+      "[slug]-4f28c909.css"
     ]
   }
 }

@@ -1,6 +1,6 @@
 <script context="module">
 	export const preload = async function( page, session) {
-		var { user } = session;
+		// var { user } = session;
 		// console.log(user);
 		return { user };
 	}
@@ -8,20 +8,29 @@
 
 
 <script>
-	export let user;
+	// export let user;
 	export let segment;
+	import {ApiUrl} from '../routes/_utils/static_store.js';
+	import {Token} from '../routes/_utils/dynamic_store.js';
+	import { get } from 'svelte/store';
+
+	var token=null;
+	Token.subscribe(a => token=a);
+
+	 var logoutPath=get(ApiUrl);
 
 	async function logout(){
-		const res = await fetch('auth.json',{mode:'cors',method:'get'});
+		console.log(token);
+		const res = await fetch(logoutPath+'/auth/logout',{mode:'cors',method:'get',headers:{"Authorization":"Bearer "+token}});
 		if(res.status==200)
 		{
-			user=null;
+			localStorage.setItem("token","");
 			location.href='/login';
 		}
 		
 	}
-	console.log(user);
-	console.log("user");
+	// console.log(user);
+	// console.log("user");
 
 	// async function fun(){
 	// 	console.log("function");const res = await fetch('auth.json',{mode:'cors',method:'get'});
@@ -36,7 +45,7 @@
 	}
 
 	ul {
-		margin: 0;
+		margin: 10px 0 0 0;
 		padding: 0;
 	}
 
@@ -93,24 +102,27 @@
 		display:flex;
 
 	}
+
+	p:hover{
+		cursor: pointer;
+	}
 </style>
 
 <nav class="nav">
 	<div class="lft">
+		
 		<ul>
 			<li><a aria-current="{segment === "dashboard" ? 'page' : undefined}" href=".">Dashboard</a></li>
-			<li><a aria-current="{segment === 'templates'? 'page' : undefined}" href="/templates">Templates</a></li>
-
-			<li><a rel=prefetch aria-current="{segment === 'certificates' ? 'page' : undefined}" href="/certificates">Certificates</a></li>
 		</ul>
 	</div>
+	<h2>Neoned71 Seminar</h2>
 
 	<!-- {#if (user === undefined || user === null)} -->
 	
 	<div class="rgt">
 		<ul>
 			<li>
-				<a href="." on:click={logout}>Logout</a>
+				<p on:click={logout}>Logout</p>
 			</li>
 
 

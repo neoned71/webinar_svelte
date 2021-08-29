@@ -1,21 +1,12 @@
 <script context="module">
 
 export const preload = async function( page, session) {
-		var { user } = session;
-		// user=JSON.parse(user);
-		if(user)
-		{
-			this.redirect(301, 'dashboard');
-		}
-		else{
-			this.redirect(301,'login');
-		}
-		return { user };
+		this.redirect(301,"/dashboard");
 	}
 </script>
 
 <script>
-	import successkid from 'images/successkid.jpg';
+	// import successkid from 'images/successkid.jpg';
 </script>
 
 <style>
@@ -59,7 +50,7 @@ export const preload = async function( page, session) {
 <h1>Great success!</h1>
 
 <figure>
-	<img alt="Success Kid" src="{successkid}">
+	<!-- <img alt="Success Kid" src="{successkid}"> -->
 	<figcaption>Have fun with Sapper!</figcaption>
 </figure>
 
