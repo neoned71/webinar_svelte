@@ -13,6 +13,12 @@
 	var myPeer;
 	const peers = {};
     var stream;
+
+	var showMasters = false;
+	var showUsers = false;
+
+	var myMic = false;
+	var myVideo = false;
 	// export var roomId;
 	export var room;
 	// console.log(roomId);
@@ -124,6 +130,8 @@
 			console.log(stream.getTracks());
 			if(stream.getTracks().length>0)
 			{
+				myMic=true;
+				myVideo=true;
 				initializePeer(stream);
 			}
 			else{
@@ -253,7 +261,7 @@
 
 	function initializePeer(stream){
 		myPeer = new Peer(user.id, {
-			host: 'drawpad.neoned71.com',
+			host: 'neoned71.com',
 			port: '11001',
 			secure:true,
 			config: {'iceServers': [
@@ -392,20 +400,61 @@ function muteControl(mute)
 
 
 function toggleMic(){
-	let tracks = stream.getAudioTracks();
-	tracks.forEach(element => {
-		element.enabled = !element.enabled;
-	});
+	if(myMic){
+		myMic = false;
+		let tracks = stream.getAudioTracks();
+		tracks.forEach(element => {
+			element.enabled =false;
+			console.log("mic false");
+		});
+	}
+	else
+	{
+		myMic = true;
+		let tracks = stream.getAudioTracks();
+		tracks.forEach(element => {
+			element.enabled =true;
+			console.log("mic true");
+		});
+	}
+	
 }
 
 function toggleVideo(){
-	let tracks = stream.getVideoTracks();
-	tracks.forEach(element => {
-		element.enabled = !element.enabled;
-	});
+	if(myVideo){
+		myVideo = false;
+		let tracks = stream.getVideoTracks();
+		tracks.forEach(element => {
+			element.enabled =false;
+			console.log("video false");
+		});
+	}
+	else
+	{
+		myVideo = true;
+		let tracks = stream.getVideoTracks();
+		tracks.forEach(element => {
+			element.enabled =true;
+			console.log("video true");
+		});
+	}
 }
 
+function toggleUsers(){
+	showUsers = !showUsers;
+}
 
+function toggleMasters(){
+	showMasters = !showMasters;
+}
+
+function toggleChat(){
+	return 0;
+}
+
+function endClass(){
+	return 0;
+}
 async function startCaptureDisplay(displayMediaOptions) {
   let captureStream = null;
 
@@ -450,75 +499,201 @@ async function startCaptureDisplay(displayMediaOptions) {
 			font-size: 4em;
 		}
 	}
+
 	.flex{
 		flex:1;
 	}
-	/* video{
-		height:100%;
-		width: 100%;
-		background: white;
-	} */
+	
+	
 
 	
 
+	
 
-	.users{
-		display: flex;
-		flex-wrap: wrap;
-		
-	}
-
-
-	.users, video{
-		flex:1;
-		width: 300px;
-		height: 200px;
-		object-fit: contain;
-	}
-
-	.masters{
-		display: flex;
-		flex-wrap: wrap;
-		
-	}
 	.control{
 		display:flex;
 		flex-wrap: wrap;
 	}
+
+	.topbar{
+		display:flex;
+		flex-direction:row;
+		justify-content:center;
+		width:100%;
+		/* height:200px; */
+		position:fixed;
+		top:0px;
+		left:0px;
+		background:black;
+		opacity:0.7;
+		z-index:10;
+
+	}
+
+	@media (max-width:800px){
+		.topbar{
+			flex-direction:column
+		}
+
+		.primary_controls{
+			margin-left:0;
+		}
+	}
+
+	.main{
+		margin:0;
+		padding:2%;
+		background:black;
+		width:100%;
+		height:100vh;
+
+	}
+
+	.primary_controls{
+		display:flex;
+		/* margin-top:auto; */
+		/* margin-bottom:auto; */
+		margin-left:auto;
+	}
+
+	.normal_controls{
+		display:flex;
+		/* margin-left:auto; */
+	}
+
+	#primary video{
+		height: 100%;
+		width: 100%;
+	
+	}
+	
+	#primary {
+		height: 80vh;
+		width: 100%;
+		display:flex;
+		align-content: center;
+		justify-content: center;
+		/* background:red; */
+	}
+	button{
+		color:white
+	}
+	
+	#masters_container {
+		position:fixed;
+		height:100%;
+		width:auto;
+		right:0;
+		top:0;
+
+	}
+	#users_container{
+		position:fixed;
+		width:100%;
+		height:auto;
+		bottom:0;
+		left:0;
+	}
+
+	#masters{
+		display: flex;
+		overflow-y:scroll;
+		/* flex-wrap: wrap; */
+		flex-direction:column;
+		
+	}
+	.users_video{
+		height:100px;
+		width:auto;
+		object-fit:fill;
+	}
+	.masters_video{
+		height:150px;
+		width:auto;
+		object-fit:fill;
+	}
+	#users{
+		display: flex;
+		overflow-x:scroll;
+		/* flex-wrap: wrap; */
+		flex-direction:row;
+		
+	}
+	
 </style>
 
 <svelte:head>
 	<title>Sapper project template</title>
 </svelte:head>
-		<button on:click={toggleMic}>Mic</button>
-		<button on:click={toggleVideo}>Video</button>	
-		<div onContextMenu={(e) => e.preventDefault()} >
-			{#if isPrimary}
-				<div class="control">
-					<button on:click={controlMuteAll}>Mute All</button>
-					<button on:click={controlUnmuteAll}>Unmute All</button>
-					<!-- <button></button> -->
-				</div>
+<div class="topbar w3-card">
+	<p>Webinar</p>
+	<div class="normal_controls">
+		{#if myMic}
+			<button class="w3-button" on:click={toggleMic}><i class="fas fa-microphone"></i></button>
+		{:else}
+			<button class="w3-button" on:click={toggleMic}><i class="fas fa-microphone-slash"></i></button>
+		{/if}
+
+		{#if myVideo}
+			<button class="w3-button" on:click={toggleVideo}><i class="fas fa-video"></i></button>
+		{:else}
+			<button class="w3-button" on:click={toggleVideo}><i class="fas fa-video-slash"></i></button>
+		{/if}
+
+		{#if !showUsers}
+			<button class="w3-button" on:click={toggleUsers}>Show Users</button>
+		{:else}
+			<button class="w3-button" on:click={toggleUsers}>Hide Users</button>
+		{/if}
+		<!-- <button class="w3-button" on:click={}></button> -->
+
+		{#if !showMasters}
+			<button class="w3-button" on:click={toggleMasters}>Show Masters</button>
+		{:else}
+			<button class="w3-button" on:click={toggleMasters}>Hide Masters</button>
+		{/if}
+		<!-- <button class="w3-button" on:click={toggleMasters}>Show Masters</button> -->
+
+		<button class="w3-button" on:click={toggleChat}>Toggle Chat</button>
+	</div>
+	{#if isPrimary}
+	
+					<div class="primary_controls">
+						<p>Master controls</p>
+						<button class="w3-button" on:click={controlMuteAll}>Mute All</button>
+						<button class="w3-button" on:click={controlUnmuteAll}>Unmute All</button>
+						<!-- <button></button> -->
+						<button class="w3-button w3-red" on:click={endClass}>End class</button>
+
+					</div>
+				
 			{/if}
+</div>
+			
+		<div class="main">
+			
 			{#if user}
-			<div id="primary" >
+			<div id="primary" class="w3-center" >
 
 			</div>
 	
-			<hr>
-			<h2>Masters</h2>
-			<div id="masters"></div>
-			<hr>
-			<h2>Users</h2>
-			<div id="users"></div>
+			<!-- <hr> -->
+			<div id="masters_container" style="display:{showMasters?"block":"none"}">
+				<h2>Masters</h2>
+				<div id="masters" class="masters_video"></div>
+			</div>
+			
+			<!-- <hr> -->
+
+			<div id="users_container" style="display:{showUsers?"block":"none"}">
+				<h2>Users</h2>
+				<div id="users" class="users_video"></div>
+			</div>
+			
 	
 			<!-- <button class="w3-button w3-round w3-border" on:click={connectSocket}>Connect Socket</button> -->
 				
 			{/if}
 
 		</div>
-		
 	
-
-	<!-- <div id="video-grid"></div> -->
-<hr>

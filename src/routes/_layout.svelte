@@ -10,7 +10,7 @@
 		position: relative;
 		width: 100vw;
 		background-color: white;
-		padding: 2em;
+		padding: 0em;
 		margin: 0 auto;
 		box-sizing: border-box;
 	}

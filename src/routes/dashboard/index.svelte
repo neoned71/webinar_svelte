@@ -32,7 +32,7 @@
 		if(!token)
 		{
 			console.log("yes");
-			// location.href="/login";
+			location.href="/login";
 		}
 		Token.set(token);
 

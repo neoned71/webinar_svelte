@@ -11,26 +11,26 @@
 	// import { Preload } from "@sapper/common";
 
 	export const preload = async function( page, session) {
-		const res = await this.fetch(loginPath+'/auth/whoami',{mode:'cors',method:'get'});
-		if(res.status==200){
-			try{
-				var data = await res.json();
-				console.log(data);
-				if(data.status == "success")
-				{
-					this.redirect(301,"/dashboard");
+		// const res = await this.fetch(loginPath+'/auth/whoami',{mode:'cors',method:'get'});
+		// if(res.status==200){
+		// 	try{
+		// 		var data = await res.json();
+		// 		console.log(data);
+		// 		if(data.status == "success")
+		// 		{
+		// 			this.redirect(301,"/dashboard");
 					
-				}
+		// 		}
 				
-			}
-			catch(e){
-				// this.error(e,data.message);
-				console.log(e);
-			}
+		// 	}
+		// 	catch(e){
+		// 		// this.error(e,data.message);
+		// 		console.log(e);
+		// 	}
 			
 			// let data = JSON.parse(text);
 			
-		}
+		// }
 	}
 
 
@@ -60,13 +60,21 @@ export async function handleSubmit(){
 		{
 			console.log(res.headers);
 			var token=res.headers.get('xtoken');
-			alert(token);
-			localStorage.setItem("token",token);
+			// alert(token);
+			if(token)
+			{
+				localStorage.setItem("token",token);
 			
-			var text = await res.text();
-			text = await JSON.parse(text);
-			// user = text.user;
-			location.href = "/dashboard";
+				var text = await res.text();
+				text = await JSON.parse(text);
+				// user = text.user;
+				location.href = "/dashboard";
+			}
+			else
+			{
+				console.log("no token present");
+			}
+			
 		}
 		else{
 			alert("Login Failed");

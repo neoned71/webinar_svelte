@@ -5,8 +5,8 @@ import compression from 'compression';
 import * as sapper from '@sapper/server';
 // var proxy = require('express-http-proxy');
 // const proxy = require('http-proxy-middleware');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-var apiProxy = createProxyMiddleware({target: 'https://drawpad.neoned71.com', changeOrigin:true, logLevel : 'debug',
+const { createProxyMiddleware, responseInterceptor } = require('http-proxy-middleware');
+var apiProxy = createProxyMiddleware({target: 'http://localhost:12000', changeOrigin:true, logLevel : 'debug',selfHandleResponse:true,
 					onProxyReq: function (proxyReq,req,res) {
 						// console.log("one");
 						if(req.headers)
@@ -19,40 +19,80 @@ var apiProxy = createProxyMiddleware({target: 'https://drawpad.neoned71.com', ch
 							}
 						}	
 					},
-					onProxyRes: function (proxyRes,req,res) {
-						var body = "";
-						// console.log("proxy results");
+					selfHandleResponse:true,
+					onProxyRes : responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+					    // detect json responses
+					    try{
+						    	// if (proxyRes.headers['content-type'] === 'application/json') {
+							      let data = JSON.parse(responseBuffer.toString('utf8'));
 
-						// console.log(proxyRes.headers);
-						proxyRes.on('data', function(data) {
-							data = data.toString('utf-8');
-							body += data;
-							
-							// if(proxyRes.headers && proxyRes.status==200)
-							try
-							{
-								var tokbodyObj=JSON.parse(body);
-								// console.log(tokbodyObj);
+							      var tokbodyObj=data;
+						// 				// console.log(tokbodyObj);
 								if(tokbodyObj.status=="success" && tokbodyObj.user && tokbodyObj.user.token)
 								{
 									// console.log("tokenn:"+tokbodyObj.user.token);
-									console.log("PROXY: res> setting up xtoken")
+									console.log("PROXY: res> setting up xtoken"+tokbodyObj.user.token)
+									// console.log(tokbodyObj.user.token)
 									res.setHeader('xtoken', tokbodyObj.user.token);
 									// res.setHeader('Set-Cookie', "token="+tokbodyObj.user.token);
 								}
-							}
-							catch(e)
-							{
-								console.log("not a json response");
-								console.log(e);
-							}
+
+						      // manipulate JSON data here
+						      // data = Object.assign({}, data, { extra: 'foo bar' });
+
+						      // // return manipulated JSON
+						      return JSON.stringify(data);
+					    	
+					    }
+					    catch(e){
+					    	console.log("inside catch");
+					    	console.log(e);
+					    }
+
+					    // return other content-types as-is
+					    return responseBuffer;
+					  })
+					// onProxyRes: function (proxyRes,req,res) {
+					// 	var body = "";
+					// 	console.log(proxyRes);
+					// 	// console.log("proxy results");
+
+					// 	// console.log(proxyRes.headers);
+					// 	proxyRes.on('data', function(data) {
+					// 		data = data.toString('utf-8');
+					// 		body += data;
 							
-							
-						});				
-					},
+					// 		// if(proxyRes.headers && proxyRes.status==200)	
+					// 	});	
+
+					// 	proxyRes.on('end',()=>{
+					// 		 try
+					// 			{
+									
+					// 				var tokbodyObj=JSON.parse(body);
+					// 				// console.log(tokbodyObj);
+					// 				if(tokbodyObj.status=="success" && tokbodyObj.user && tokbodyObj.user.token)
+					// 				{
+					// 					// console.log("tokenn:"+tokbodyObj.user.token);
+					// 					console.log("PROXY: res> setting up xtoken")
+					// 					console.log(tokbodyObj.user.token)
+					// 					res.setHeader('xtoken', tokbodyObj.user.token);
+					// 					// res.setHeader('Set-Cookie', "token="+tokbodyObj.user.token);
+					// 				}
+					// 				console.log(body);
+					// 			}
+					// 			catch(e)
+					// 			{
+					// 				console.log("not a json response");
+					// 				// console.log(body);
+					// 				console.log(e);
+					// 			}
+					// 	});
+								
+					// },
 });
 
-var socketProxy = createProxyMiddleware('/socket.io',{target: 'https://drawpad.neoned71.com',changeOrigin:true,ws:true, logLevel : 'debug',
+var socketProxy = createProxyMiddleware('/socket.io',{target: 'http://localhost:12000',changeOrigin:true,ws:true, logLevel : 'debug',
 					onProxyReq: function (proxyReq,req,res) {
 						console.log("PROXY: req> proxy for socket");
 						// console.log(req.headers);
@@ -123,7 +163,7 @@ app.use('/api',apiProxy);
 
 
 // for json post form data
-app.use(sessionMiddleWare);
+//app.use(sessionMiddleWare);
 
 
 
@@ -146,7 +186,10 @@ function a(req,res,next){
 app.use(express.static('static'),sapper.middleware({ session:(req,res)=>({user: JSON.stringify(req.user)}) }) );
 
 
-
-app.listen(PORT, err => {
+console.log("a");
+/* app.listen(PORT, err => {
 		if (err) console.log('error', err);
 	});
+*/
+
+app.listen(PORT);
