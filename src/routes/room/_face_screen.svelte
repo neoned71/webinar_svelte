@@ -14,6 +14,10 @@
 	const peers = {};
     var stream;
 
+	let selectedVideoDeviceId="-";
+	let selectedAudioDeviceId="-";
+	let selectedMediaDeviceId="camera";
+
 	var showMasters = false;
 	var showUsers = false;
 
@@ -23,6 +27,10 @@
 	export var room;
 	// console.log(roomId);
 	var isMaster,isPrimary;
+
+	var enumeratedDevices = [];
+	var enumeratedAudioDevices = [];
+	var enumeratedMediaDevices = ['application' , 'browser' , 'monitor' , 'window'];
 
 
 	//Map of UserId=>{screen+video}
@@ -43,6 +51,9 @@
 			connectSocket();
 		}
         
+		// console.log("enumeratedDevices-:");
+		// console.log(enumeratedDevices);
+
 	});
 
 	function setVideo(userId,stream)
@@ -121,25 +132,60 @@
 
 	}
 	
-
-	
-
 	async function connectSocket(){
 		try{
 			stream = await navigator.mediaDevices.getUserMedia({video: {},audio: {}});
-			console.log(stream.getTracks());
-			if(stream.getTracks().length>0)
+			enumeratedDevices = await enumerateVideoDevices();
+			enumeratedAudioDevices = await enumerateAudioDevices();
+			// enumeratedMediaDevices
+			console.log(enumeratedDevices);
+			selectedVideoDeviceId = enumeratedDevices[0].deviceId;
+			selectedAudioDeviceId = enumeratedAudioDevices[0].deviceId;
+			// stream = await navigator.mediaDevices.getUserMedia({video:{deviceId:enumeratedDevices[0].deviceId},audio:{deviceId:enumeratedAudioDevices[0].deviceId}})
+			// stream = await getFullStream()
+			console.log("selected video device Id:"+selectedVideoDeviceId);
+			console.log("selected audio device Id:"+selectedAudioDeviceId);
+
+			if(selectedAudioDeviceId && selectedVideoDeviceId)
 			{
+				// selectedVideoDeviceId = enumeratedDevices[0].deviceId;
+				// await deviceChanged(null,0);
+			
+				console.log(stream);
+				
 				myMic=true;
 				myVideo=true;
 				initializePeer(stream);
 			}
+			else if(selectedAudioDeviceId)
+			{
+				// selectedVideoDeviceId = enumeratedDevices[0].deviceId;
+				// await deviceChanged(null,1);
+			
+				console.log(stream);
+				
+				myMic=true;
+				// myVideo=true;
+				initializePeer(stream);
+			}
+			else if(selectedVideoDeviceId)
+			{
+				// selectedVideoDeviceId = enumeratedDevices[0].deviceId;
+				await deviceChanged(null,2);
+			
+				// console.log(stream);
+				
+				// myMic=true;
+				myVideo=true;
+				initializePeer(stream);
+			}
 			else{
-				console.log("empty stream, no tracks");
+				console.log("empty stream, no video tracks");
 			}
 		}
 		catch(e){
-			alert("failed to start stream")
+			console.log(e);
+			alert(e.message);
 		}
 	} 
 
@@ -455,6 +501,8 @@ function toggleChat(){
 function endClass(){
 	return 0;
 }
+
+
 async function startCaptureDisplay(displayMediaOptions) {
   let captureStream = null;
 
@@ -465,8 +513,245 @@ async function startCaptureDisplay(displayMediaOptions) {
   }
   return captureStream;
 }
-</script>
 
+
+
+/////////Devices operations and screen sharing setup
+
+
+// Listen for changes to media devices and update the list accordingly
+navigator.mediaDevices.addEventListener('devicechange', async event => {
+	console.log("device changed");
+    enumeratedDevices = await getConnectedDevices('video');
+	console.log(enumeratedDevices);
+    // updateCameraList(newCameraList);
+});
+
+// Fetch an array of devices of a certain type
+async function getConnectedDevices(type) {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter(device => device.kind === type)
+}
+
+
+function enumerateVideoDevices(){
+	return getConnectedDevices('videoinput');
+}
+
+function enumerateAudioDevices(){
+	return getConnectedDevices('audioinput');
+}
+
+// async function videoDeviceChanged(e){
+// 	console.log(e);
+	
+// 	console.log("switching devices");
+// 	let str = await getFullStream(selectedAudioDeviceId,selectedVideoDeviceId);
+// 	let peerIds = Object.keys(peers);
+// 	for(let peer of peerIds)
+// 	{
+// 		console.log("looping switching devices");
+// 		replaceStream(peers[peer].peerConnection,str);
+// 	}
+
+// 	if(userScreenVideoMap.has(user.id)){
+// 		console.log("switching self device stream");
+// 		var video = document.getElementById(user.id);
+// 		video.srcObject = str;
+// 	}
+
+// 	stream = str;
+// }
+
+async function deviceChanged(e,type=0){
+	console.log(e);
+	// let deviceId = selectedAudioDeviceId;
+	try{
+		console.log("switching device");
+		stream.getAudioTracks().forEach(element =>{
+			element.stop();
+			console.log(element);
+			console.log("stopping audio tracks");
+		});
+		if(type==0)
+		{
+			stream = await getFullStream(selectedAudioDeviceId,selectedVideoDeviceId);
+		}
+		else if(type==1)
+		{
+			stream = await getAudioStream(selectedAudioDeviceId);
+		}
+		else if(type==2)
+		{
+			stream = await getVideoStream(selectedVideoDeviceId);
+		}
+		else
+		{
+			console.log(
+				"called wihout a type!! blunder"
+			);
+		}
+		let peerIds = Object.keys(peers);
+		for(let peer of peerIds)
+		{
+			console.log("looping peer audio devices");
+			replaceAudioStream(peers[peer].peerConnection,stream);
+		}
+		if(userScreenVideoMap.has(user.id)){
+			console.log("switching self device stream");
+			var video = document.getElementById(user.id);
+			video.srcObject = stream;
+		}
+		
+		// stream = str;
+	}
+	catch(e){
+		console.log(e.message);
+	}
+}
+
+
+async function deviceChangeToAndFromMedia(e){
+	console.log(e);
+	// let deviceId = selectedAudioDeviceId;
+	if(selectedMediaDeviceId == "camera")
+	{
+		deviceChanged(null,0);
+	}
+	else{
+		try{
+		console.log("switching to Media device");
+		
+		stream = await getDisplayMediaStream(selectedMediaDeviceId);
+		let peerIds = Object.keys(peers);
+		for(let peer of peerIds)
+		{
+			console.log("looping peer video tracks");
+			replaceVideoStream(peers[peer].peerConnection,stream);
+		}
+		if(userScreenVideoMap.has(user.id)){
+			console.log("switching self device stream");
+			var video = document.getElementById(user.id);
+			video.srcObject = stream;
+		}
+		
+		// stream = str;
+		}
+		catch(e){
+			console.log(e.message);
+		}
+	}
+	
+}
+
+async function deviceChangefromMedia(e){
+	console.log(e);
+	// let deviceId = selectedAudioDeviceId;
+	
+	try{
+		console.log("switching to Media device");
+		
+		stream = await getDisplayMediaStream(selectedMediaDeviceId);
+		let peerIds = Object.keys(peers);
+		for(let peer of peerIds)
+		{
+			console.log("looping peer video tracks");
+			replaceVideoStream(peers[peer].peerConnection,stream);
+		}
+		if(userScreenVideoMap.has(user.id)){
+			console.log("switching self device stream");
+			var video = document.getElementById(user.id);
+			video.srcObject = stream;
+		}
+		
+		// stream = str;
+	}
+	catch(e){
+		console.log(e.message);
+	}
+}
+
+
+// get new media stream
+async function getDisplayMediaStream(display) {
+    const constraints = {
+    video: {
+        cursor: 'always',
+        displaySurface: display
+    }
+}
+
+    return await navigator.mediaDevices.getDisplayMedia(constraints);
+}
+
+// get new audio stream
+async function getFullStream(audioId,videoId) {
+	// if()
+    const constraints = {
+        'audio': {'echoCancellation': true,'deviceId':audioId},
+        'video': {'deviceId':videoId}
+        }
+    return await navigator.mediaDevices.getUserMedia(constraints);
+}
+
+// get new audio stream
+async function getAudioStream(audioId) {
+    const constraints = {
+        'audio': {'echoCancellation': true,'deviceId':audioId},
+        'video': false
+        }
+    return await navigator.mediaDevices.getUserMedia(constraints);
+}
+
+// get new video stream
+async function getVideoStream(videoId) {
+    const constraints = {
+        'audio': false,
+        'video': {'deviceId':videoId}
+        }
+    return await navigator.mediaDevices.getUserMedia(constraints);
+}
+
+function replaceAllStream(peerConnection, mediaStream) {
+	console.log("replacing stream devices");
+	for(sender of peerConnection.getSenders()){
+		if(sender.track.kind == "audio") {
+			if(mediaStream.getAudioTracks().length > 0){
+				sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+			}
+		}
+		if(sender.track.kind == "video") {
+			if(mediaStream.getVideoTracks().length > 0){
+				sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+			}
+		}
+	}
+}
+
+function replaceVideoStream(peerConnection, mediaStream) {
+	console.log("replacing stream devices");
+	for(sender of peerConnection.getSenders()){
+		if(sender.track.kind == "video") {
+			if(mediaStream.getVideoTracks().length > 0){
+				sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+			}
+		}
+	}
+}
+
+function replaceAudioStream(peerConnection, mediaStream) {
+	console.log("replacing stream devices");
+	for(sender of peerConnection.getSenders()){
+		if(sender.track.kind == "audio") {
+			if(mediaStream.getAudioTracks().length > 0){
+				sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+			}
+		}
+	}
+}
+
+
+</script>
 <style>
 	h1, figure, p {
 		text-align: left;
@@ -619,7 +904,13 @@ async function startCaptureDisplay(displayMediaOptions) {
 		flex-direction:row;
 		
 	}
-	
+	button{
+		font-size: small;
+	}
+	select{
+		width:100px;
+		height:50px;
+	}
 </style>
 
 <svelte:head>
@@ -655,18 +946,52 @@ async function startCaptureDisplay(displayMediaOptions) {
 		<!-- <button class="w3-button" on:click={toggleMasters}>Show Masters</button> -->
 
 		<button class="w3-button" on:click={toggleChat}>Toggle Chat</button>
+
+		
 	</div>
+	
+	{#if enumeratedDevices}
+		<select class="w3-black w3-round w3-select w3-input w3-padding w3-opacity" bind:value={selectedVideoDeviceId}>
+			<option value="-">Select Camera</option>
+			{#each enumeratedDevices as device, i}
+				<option value={device.deviceId}>{device.label || "camera "+(i+1)}</option>
+			{/each}
+		</select>
+	{/if}
+
+	{#if enumeratedAudioDevices}
+		<select class="w3-black w3-round w3-select w3-input w3-padding w3-opacity" bind:value={selectedAudioDeviceId} >
+			<option value="-">Select Audio Device</option>
+			{#each enumeratedAudioDevices as device, i}
+				<option value={device.deviceId}>{device.label || "audio "+(i+1)}</option>
+			{/each}
+		</select>
+	{/if}
+	{#if enumeratedAudioDevices || enumeratedDevices}
+		<button class="w3-button w3-green w3-margin" on:click={deviceChanged}>Apply!</button>
+	{/if}
+	
+	
 	{#if isPrimary}
+
 	
 					<div class="primary_controls">
 						<p>Master controls</p>
+						{#if enumeratedMediaDevices}
+							<select class="w3-black w3-round w3-select w3-input w3-padding w3-opacity" bind:value={selectedMediaDeviceId} on:change={deviceChangeToAndFromMedia} >
+								<option value="camera">Camera</option>
+								{#each enumeratedMediaDevices as device, i}
+									<option value={device}>{device}</option>
+								{/each}
+							</select>
+						{/if}
 						<button class="w3-button" on:click={controlMuteAll}>Mute All</button>
 						<button class="w3-button" on:click={controlUnmuteAll}>Unmute All</button>
 						<!-- <button></button> -->
 						<button class="w3-button w3-red" on:click={endClass}>End class</button>
 
 					</div>
-				
+					
 			{/if}
 </div>
 			
