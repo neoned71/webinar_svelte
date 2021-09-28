@@ -2,7 +2,7 @@
   "bundler": "rollup",
   "shimport": "2.0.4",
   "assets": {
-    "main": "client.1fbe3c8c.js"
+    "main": "client.a8f7b38f.js"
   },
   "css": {
     "main": [
@@ -11,71 +11,71 @@
   },
   "dependencies": {
     "index.svelte": [
-      "index.89c3aa06.js",
+      "index.e2d41a23.js",
       "inject_styles.5607aec6.js",
       "index-28e6047f.css"
     ],
     "create_certificate/index.svelte": [
-      "index.d99c46ce.js",
+      "index.632598ed.js",
       "successkid.d53948a6.js",
       "inject_styles.5607aec6.js",
       "index-c8c81f53.css"
     ],
     "create_template/index.svelte": [
-      "index.18e4b49a.js",
+      "index.9da1dae9.js",
       "successkid.d53948a6.js",
       "inject_styles.5607aec6.js",
       "index-4bf714b4.css"
     ],
     "certificates/index.svelte": [
-      "index.2b061cfe.js",
+      "index.bea31780.js",
       "inject_styles.5607aec6.js",
       "index-6192a94e.css"
     ],
     "certificate/[slug].svelte": [
-      "[slug].4e0d71cd.js",
+      "[slug].10cb0fde.js",
       "inject_styles.5607aec6.js",
       "[slug]-dd13d435.css"
     ],
     "dashboard/index.svelte": [
-      "index.e11cda74.js",
-      "dataUpload.3906df13.js",
+      "index.cc6f2259.js",
+      "dataUpload.8164cd89.js",
       "inject_styles.5607aec6.js",
       "dataUpload-f35e9418.css",
       "index-1a3e3ae6.css"
     ],
     "templates/index.svelte": [
-      "index.82417ca5.js",
+      "index.f5d9bfdb.js",
       "successkid.d53948a6.js",
       "inject_styles.5607aec6.js",
       "index-7fb19cac.css"
     ],
     "register/index.svelte": [
-      "index.9ce4a7dc.js",
+      "index.be6a922e.js",
       "inject_styles.5607aec6.js",
       "index-c8c81f53.css"
     ],
     "about.svelte": [
-      "about.1fcd92e7.js",
+      "about.b033a7d4.js",
       "inject_styles.5607aec6.js"
     ],
     "login/index.svelte": [
-      "index.9fb8568e.js",
+      "index.aa73c08e.js",
       "inject_styles.5607aec6.js",
       "index-fcc7084c.css"
     ],
     "room/[slug]_back.svelte": [
-      "[slug]_back.f5044b89.js",
-      "dataUpload.3906df13.js",
-      "_face_screen.c20427b2.js",
+      "[slug]_back.7d44dde0.js",
+      "dataUpload.8164cd89.js",
+      "_face_screen.022f3ac9.js",
       "inject_styles.5607aec6.js",
       "dataUpload-f35e9418.css",
       "_face_screen-58fe1e82.css",
       "[slug]_back-726542a4.css"
     ],
     "room/[slug].svelte": [
-      "[slug].d1210799.js",
-      "_face_screen.c20427b2.js",
+      "[slug].fe1e33f0.js",
+      "_face_screen.022f3ac9.js",
       "inject_styles.5607aec6.js",
       "_face_screen-58fe1e82.css",
       "[slug]-4f28c909.css"

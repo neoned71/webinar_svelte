@@ -25,7 +25,7 @@
 
 	var myMic = false;
 	var myVideo = false;
-	// export var roomId;
+	export var roomId;
 	export var room;
 	// console.log(roomId);
 	var isMaster,isPrimary;
@@ -502,7 +502,7 @@ function toggleChat(){
 
 async function endClass(){
 	var token = localStorage.getItem("token");
-	var res = await fetch(loginPath+'/rooms/end_room',{mode:'cors',method:'get',headers:{'Authorization':'Bearer '+token}});
+	var res = await fetch(loginPath+'/rooms/end_room/'+roomId,{mode:'cors',method:'get',headers:{'Authorization':'Bearer '+token}});
 		if(res.status==200){
 			try{
 					let data= await res.text();

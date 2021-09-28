@@ -186,7 +186,7 @@
 		
 		<!-- <button class="w3-button w3-round w3-border" on:click={connectSocket}>Connect Socket</button> -->
 		{#if initializedSocket}
-			<FaceScreen socket={socket} user={user} room={room} />
+			<FaceScreen socket={socket} user={user} room={room} roomId={roomId} />
 		{/if}
 		
 		<!-- <DataUpload class="flex" organization={user.organization} post={user.post} name={user.username} />
