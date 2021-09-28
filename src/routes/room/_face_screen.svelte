@@ -14,6 +14,8 @@
 	const peers = {};
     var stream;
 
+	let ended = false;
+
 	let selectedVideoDeviceId="-";
 	let selectedAudioDeviceId="-";
 	let selectedMediaDeviceId="camera";
@@ -498,8 +500,33 @@ function toggleChat(){
 	return 0;
 }
 
-function endClass(){
-	return 0;
+async function endClass(){
+	var token = localStorage.getItem("token");
+	var res = await fetch(loginPath+'/rooms/end_room',{mode:'cors',method:'get',headers:{'Authorization':'Bearer '+token}});
+		if(res.status==200){
+			try{
+					let data= await res.text();
+					data= await JSON.parse(data);
+					if(data.status == "success")
+					{
+						ended = true;
+						alert("Room ended!");
+						location.href= "/dashboard";
+					}
+					else
+					{
+						alert("Failed to end the room!");
+					}
+			}
+			catch(e){
+				console.log("caught");
+				console.log(e.message);
+			}
+			
+		}
+		else{
+					console.log(await res.text());
+				}
 }
 
 
