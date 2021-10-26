@@ -113,6 +113,7 @@
 		var queryString ="room_id="+roomId+"&token="+token;
 		console.log("query: "+queryString);
 		console.log("checkpoint 0");
+		// socket = io("wss://127.0.0.1:12002", {path:"/socket.io",query:queryString,extraHeaders: {"Authorization": "Bearer "+token},transports: ['websocket'],upgrade:true});
 		socket = io("wss://webinar.neoned71.com:12002", {path:"/socket.io",query:queryString,extraHeaders: {"Authorization": "Bearer "+token},transports: ['websocket'],upgrade:true});
 
 		socket.on("connect",()=>{

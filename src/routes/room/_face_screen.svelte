@@ -4,12 +4,14 @@
 	import {ApiUrl} from '../_utils/static_store.js';
 	import { get } from 'svelte/store';
 	import { io } from "socket.io-client";
+	import Chats from './_chat_widget.svelte';
 	// import * as socketFunctions from "./socketFunctions";
 	// import Peer from 'peerjs';
 
 	var loginPath=get(ApiUrl);
 	export var socket = null;
 	export var user=null;
+	var chats= [];
 	var myPeer;
 	const peers = {};
     var stream;
@@ -22,6 +24,7 @@
 
 	var showMasters = false;
 	var showUsers = false;
+	var showChat = false;
 
 	var myMic = false;
 	var myVideo = false;
@@ -68,6 +71,23 @@
 			let video = createVideo(userId,stream);
 			primaryDiv.append(video);
 
+		}
+		else if(userId == user._id)
+		{
+			var videoGroup = document.querySelector("#self");
+			var video = document.createElement("video");
+			// video.addEventListener('contextmenu', function(e) {
+			// 	e.preventDefault();
+			// }, false);
+			video.srcObject = stream;
+			video.id = userId;
+			videoGroup.append(video);
+			video.addEventListener('loadedmetadata', () => {
+				video.play();
+			});
+			// video.play();
+			console.log("master video set");
+			userScreenVideoMap.set(userId,{stream:stream,video:userId});
 		}
 		else if(userId in room.masters)
 		{
@@ -302,6 +322,15 @@
 			// room.primary = data.user;
 		});
 
+		socket.on('chat', data => {
+			if(data.action=="new"){
+				chats.push = data.data;
+			}
+			// document.getElementById("chat-ui");
+			// userScreenVideoMap.delete(userId);
+			// console.log("inside user disconnected 1"+userId);
+		});
+
 		//manage everything here!
 		//muting and controlling videos, swap master and primary and so on...
 
@@ -497,7 +526,8 @@ function toggleMasters(){
 }
 
 function toggleChat(){
-	return 0;
+	console.log("toggling chat");
+	showChat = !showChat;
 }
 
 async function endClass(){
@@ -944,6 +974,21 @@ function replaceAudioStream(peerConnection, mediaStream) {
 		width:100px;
 		height:50px;
 	}
+
+	.self-video{
+		position:fixed;
+		bottom:100px;
+		right:50px;
+	}
+
+	.chat{
+		position: fixed;
+		top:2%;
+		right:10px;
+		height: 80%;
+		background:blue;
+		width:500px;
+	}
 </style>
 
 <svelte:head>
@@ -1048,8 +1093,16 @@ function replaceAudioStream(peerConnection, mediaStream) {
 				<div id="users" class="users_video"></div>
 			</div>
 			
+
+			<div id="self" class="self-video">
+				
+			</div>
 	
 			<!-- <button class="w3-button w3-round w3-border" on:click={connectSocket}>Connect Socket</button> -->
+
+			<!-- <div class="chat" id="chat-ui" style="display:{showChat?"block":"none"}"> -->
+				<Chats class="chat" {socket} {user} style="display:{showChat?"block":"none"}"/>
+			<!-- </div> -->
 				
 			{/if}
 
