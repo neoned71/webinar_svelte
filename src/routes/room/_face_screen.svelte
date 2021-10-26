@@ -600,6 +600,12 @@ async function deviceChanged(e,type=0){
 			console.log(element);
 			console.log("stopping audio tracks");
 		});
+
+		stream.getVideoTracks().forEach(element =>{
+			element.stop();
+			console.log(element);
+			console.log("stopping video tracks");
+		});
 		if(type==0)
 		{
 			stream = await getFullStream(selectedAudioDeviceId,selectedVideoDeviceId);
@@ -622,7 +628,7 @@ async function deviceChanged(e,type=0){
 		for(let peer of peerIds)
 		{
 			console.log("looping peer audio devices");
-			replaceAudioStream(peers[peer].peerConnection,stream);
+			replaceAllStream(peers[peer].peerConnection,stream);
 		}
 		if(userScreenVideoMap.has(user.id)){
 			console.log("switching self device stream");
@@ -741,7 +747,7 @@ async function getVideoStream(videoId) {
 
 function replaceAllStream(peerConnection, mediaStream) {
 	console.log("replacing stream devices");
-	for(sender of peerConnection.getSenders()){
+	for(let sender of peerConnection.getSenders()){
 		if(sender.track.kind == "audio") {
 			if(mediaStream.getAudioTracks().length > 0){
 				sender.replaceTrack(mediaStream.getAudioTracks()[0]);
@@ -757,7 +763,7 @@ function replaceAllStream(peerConnection, mediaStream) {
 
 function replaceVideoStream(peerConnection, mediaStream) {
 	console.log("replacing stream devices");
-	for(sender of peerConnection.getSenders()){
+	for(let sender of peerConnection.getSenders()){
 		if(sender.track.kind == "video") {
 			if(mediaStream.getVideoTracks().length > 0){
 				sender.replaceTrack(mediaStream.getVideoTracks()[0]);
@@ -768,7 +774,7 @@ function replaceVideoStream(peerConnection, mediaStream) {
 
 function replaceAudioStream(peerConnection, mediaStream) {
 	console.log("replacing stream devices");
-	for(sender of peerConnection.getSenders()){
+	for(let sender of peerConnection.getSenders()){
 		if(sender.track.kind == "audio") {
 			if(mediaStream.getAudioTracks().length > 0){
 				sender.replaceTrack(mediaStream.getAudioTracks()[0]);

@@ -90,7 +90,7 @@ export async function handleSubmit(){
 <svelte:head>
 	<title>Sapper project template</title>
 </svelte:head>
-<h1>Register for CERTPAD</h1>
+<h3>Register for Webinar</h3>
 
 <form on:submit|preventDefault={handleSubmit} >
 
